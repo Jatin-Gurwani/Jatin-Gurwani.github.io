@@ -1,0 +1,65 @@
+---
+/**
+ * GitHubStats.astro — Displays GitHub contribution statistics and language metrics dynamically.
+ */
+import { portfolio } from '@config/portfolio';
+import SectionHeading from '@components/SectionHeading.astro';
+
+const { githubUsername } = portfolio;
+---
+
+<section id="github" class="section-padding">
+  <div class="section-container">
+    <SectionHeading title="GitHub Activity" subtitle="Open source contributions and stats" />
+
+    <div class="grid md:grid-cols-2 gap-8 items-stretch reveal">
+      <!-- Left: Language Card -->
+      <div class="glass-card p-6 flex flex-col justify-center items-center">
+        <h3 class="font-bold text-lg mb-6 text-[var(--color-text)]">
+          Most Used Languages
+        </h3>
+        <img
+          src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${githubUsername}&layout=compact&theme=transparent&hide_border=true&title_color=6366f1&text_color=94a3b8`}
+          alt="GitHub Top Languages"
+          class="max-w-full h-auto"
+          loading="lazy"
+        />
+      </div>
+
+      <!-- Right: Main Stats Card -->
+      <div class="glass-card p-6 flex flex-col justify-center items-center">
+        <h3 class="font-bold text-lg mb-6 text-[var(--color-text)]">
+          GitHub Statistics
+        </h3>
+        <img
+          src={`https://github-readme-stats.vercel.app/api?username=${githubUsername}&show_icons=true&theme=transparent&hide_border=true&title_color=6366f1&icon_color=8b5cf6&text_color=94a3b8`}
+          alt="GitHub Stats"
+          class="max-w-full h-auto"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <!-- Bottom: Streak & Direct Link -->
+    <div class="mt-8 text-center reveal">
+      <div class="glass-card p-6 max-w-2xl mx-auto mb-8 flex justify-center">
+        <img
+          src={`https://github-readme-streak-stats.herokuapp.com/?user=${githubUsername}&theme=transparent&hide_border=true&ring=6366f1&fire=8b5cf6&currStreakLabel=6366f1`}
+          alt="GitHub Contribution Streak"
+          class="max-w-full h-auto"
+          loading="lazy"
+        />
+      </div>
+
+      <a
+        href={`https://github.com/${githubUsername}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-primary"
+      >
+        <span class="i-simple-icons-github w-5 h-5"></span>
+        Follow me on GitHub
+      </a>
+    </div>
+  </div>
+</section>

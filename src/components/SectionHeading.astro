@@ -1,0 +1,32 @@
+---
+/**
+ * SectionHeading.astro — Reusable section heading with decorative underline.
+ */
+interface Props {
+  title: string;
+  subtitle?: string;
+  id?: string;
+}
+
+const { title, subtitle, id } = Astro.props;
+---
+
+<div class="text-center mb-12 lg:mb-16">
+  <h2
+    id={id}
+    class="heading-lg text-[var(--color-text)] mb-4"
+  >
+    {title}
+  </h2>
+
+  {subtitle && (
+    <p class="body-lg max-w-2xl mx-auto">
+      {subtitle}
+    </p>
+  )}
+
+  <!-- Decorative underline -->
+  <div class="flex justify-center mt-6">
+    <div class="h-1 w-12 rounded-full bg-gradient-to-r from-primary-500 to-accent-500"></div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+# https://jatin-gurwani.github.io sitemap
+User-agent: *
+Allow: /
+
+Sitemap: https://jatin-gurwani.github.io/sitemap-index.xml

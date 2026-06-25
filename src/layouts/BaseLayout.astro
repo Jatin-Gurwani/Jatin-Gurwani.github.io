@@ -1,0 +1,278 @@
+---
+/**
+ * BaseLayout.astro — Root layout for all pages.
+ * Handles HTML skeleton, SEO meta, navigation, and theme initialization.
+ */
+import { portfolio } from '@config/portfolio';
+import ThemeToggle from '@components/ThemeToggle.astro';
+import Footer from '@components/Footer.astro';
+import { generateCssVariables } from '../utils/colors';
+import '@styles/global.css';
+import 'virtual:uno.css';
+
+const themeVariablesCss = generateCssVariables(portfolio.theme.primaryColor, portfolio.theme.accentColor);
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = portfolio.seo.title,
+  description = portfolio.seo.description,
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(portfolio.seo.ogImage, Astro.site);
+
+// Navigation links
+const navLinks = [
+  { label: 'About', href: '#about' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Contact', href: '#contact' },
+];
+
+// JSON-LD structured data (Person schema)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: portfolio.name,
+  jobTitle: portfolio.title,
+  url: Astro.site?.toString(),
+  email: `mailto:${portfolio.email}`,
+  sameAs: [
+    portfolio.socialLinks.github,
+    portfolio.socialLinks.linkedin,
+    portfolio.socialLinks.twitter,
+    portfolio.socialLinks.blog,
+  ].filter(Boolean),
+  description: portfolio.seo.description,
+  image: ogImageUrl.toString(),
+};
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={portfolio.seo.keywords.join(', ')} />
+    <meta name="author" content={portfolio.name} />
+    <link rel="canonical" href={canonicalUrl.toString()} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl.toString()} />
+    <meta property="og:url" content={canonicalUrl.toString()} />
+    <meta property="og:site_name" content={portfolio.name} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl.toString()} />
+    <meta name="twitter:site" content={portfolio.seo.twitterHandle} />
+    <meta name="twitter:creator" content={portfolio.seo.twitterHandle} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Font preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Theme initialization (prevents FOUC) -->
+    <script is:inline>
+      (function() {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored || (prefersDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+      })();
+    </script>
+
+    <!-- Customizable Theme Colors -->
+    <style is:inline set:html={themeVariablesCss}></style>
+  </head>
+
+  <body class="bg-[var(--color-bg)] text-[var(--color-text)] min-h-screen">
+    <!-- ── Navigation ── -->
+    <nav
+      id="main-nav"
+      class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      aria-label="Main navigation"
+    >
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <a
+            href="#"
+            class="text-lg font-bold text-gradient hover:opacity-80 transition-opacity"
+            aria-label="Home"
+          >
+            &lt;{portfolio.firstName} /&gt;
+          </a>
+
+          <!-- Desktop nav links -->
+          <div class="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <a
+                href={link.href}
+                class="nav-link px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] rounded-lg hover:bg-[var(--color-surface)] transition-all duration-200"
+              >
+                {link.label}
+              </a>
+            ))}
+            <ThemeToggle />
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button
+              id="mobile-menu-btn"
+              class="p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors"
+              aria-label="Toggle mobile menu"
+              aria-expanded="false"
+            >
+              <svg id="menu-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg id="close-icon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-xl"
+      >
+        <div class="px-4 py-3 space-y-1">
+          {navLinks.map((link) => (
+            <a
+              href={link.href}
+              class="mobile-nav-link block px-3 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] rounded-lg hover:bg-[var(--color-surface)] transition-all"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── Main Content ── -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- ── Footer ── -->
+    <Footer />
+
+    <!-- ── Scripts ── -->
+    <script>
+      // ── Navigation scroll effect ──
+      const nav = document.getElementById('main-nav');
+      let lastScrollY = 0;
+
+      function updateNav() {
+        const scrollY = window.scrollY;
+        if (nav) {
+          if (scrollY > 50) {
+            nav.classList.add('bg-[var(--color-bg)]/90', 'backdrop-blur-xl', 'shadow-sm', 'border-b', 'border-[var(--color-border)]');
+          } else {
+            nav.classList.remove('bg-[var(--color-bg)]/90', 'backdrop-blur-xl', 'shadow-sm', 'border-b', 'border-[var(--color-border)]');
+          }
+        }
+        lastScrollY = scrollY;
+      }
+
+      window.addEventListener('scroll', updateNav, { passive: true });
+      updateNav();
+
+      // ── Mobile menu toggle ──
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const menuIcon = document.getElementById('menu-icon');
+      const closeIcon = document.getElementById('close-icon');
+
+      mobileMenuBtn?.addEventListener('click', () => {
+        const isOpen = mobileMenu?.classList.toggle('hidden') === false;
+        menuIcon?.classList.toggle('hidden', isOpen);
+        closeIcon?.classList.toggle('hidden', !isOpen);
+        mobileMenuBtn.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      // Close mobile menu when clicking a link
+      document.querySelectorAll('.mobile-nav-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          mobileMenu?.classList.add('hidden');
+          menuIcon?.classList.remove('hidden');
+          closeIcon?.classList.add('hidden');
+          mobileMenuBtn?.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // ── Scroll-triggered reveal animations ──
+      const revealElements = document.querySelectorAll('.reveal');
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px',
+        }
+      );
+
+      revealElements.forEach((el) => revealObserver.observe(el));
+
+      // ── Active section highlighting ──
+      const sections = document.querySelectorAll('section[id]');
+      const navLinksAll = document.querySelectorAll('.nav-link');
+
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              navLinksAll.forEach((link) => {
+                const href = link.getAttribute('href');
+                if (href === `#${id}`) {
+                  link.classList.add('text-primary-500', 'dark:text-primary-400');
+                  link.classList.remove('text-[var(--color-text-secondary)]');
+                } else {
+                  link.classList.remove('text-primary-500', 'dark:text-primary-400');
+                  link.classList.add('text-[var(--color-text-secondary)]');
+                }
+              });
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+
+      sections.forEach((section) => sectionObserver.observe(section));
+    </script>
+  </body>
+</html>

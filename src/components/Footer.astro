@@ -1,0 +1,113 @@
+---
+/**
+ * Footer.astro — Footer component with copyright, social links, and back-to-top button.
+ */
+import { portfolio } from '@config/portfolio';
+
+const { name, socialLinks } = portfolio;
+---
+
+<footer class="bg-surface-900 dark:bg-surface-950 text-surface-400 py-12 border-t border-surface-800">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-3 gap-8 items-center mb-8">
+      <!-- Left Branding -->
+      <div class="text-center md:text-left">
+        <a href="#" class="text-lg font-bold text-gradient hover:opacity-80 transition-opacity">
+          &lt;{portfolio.firstName} /&gt;
+        </a>
+        <p class="text-xs text-surface-500 mt-2">
+          {portfolio.title}
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="flex justify-center gap-6">
+        <a href="#about" class="text-sm hover:text-white transition-colors">About</a>
+        <a href="#projects" class="text-sm hover:text-white transition-colors">Projects</a>
+        <a href="#contact" class="text-sm hover:text-white transition-colors">Contact</a>
+      </div>
+
+      <!-- Socials -->
+      <div class="flex justify-center md:justify-end gap-4">
+        {socialLinks.github && (
+          <a
+            href={socialLinks.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 rounded-full bg-surface-800 hover:bg-surface-700 text-surface-400 hover:text-white transition-colors"
+            aria-label="GitHub"
+          >
+            <span class="i-simple-icons-github w-4 h-4 block"></span>
+          </a>
+        )}
+        {socialLinks.linkedin && (
+          <a
+            href={socialLinks.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 rounded-full bg-surface-800 hover:bg-surface-700 text-surface-400 hover:text-white transition-colors"
+            aria-label="LinkedIn"
+          >
+            <span class="i-simple-icons-linkedin w-4 h-4 block"></span>
+          </a>
+        )}
+        {socialLinks.twitter && (
+          <a
+            href={socialLinks.twitter}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 rounded-full bg-surface-800 hover:bg-surface-700 text-surface-400 hover:text-white transition-colors"
+            aria-label="Twitter / X"
+          >
+            <span class="i-simple-icons-x w-4 h-4 block"></span>
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-surface-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-surface-500">
+      <div>
+        &copy; <span id="current-year"></span> {name}. All rights reserved.
+      </div>
+      <div>
+        Built with <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="hover:text-surface-400">Astro</a> & <a href="https://unocss.dev" target="_blank" rel="noopener noreferrer" class="hover:text-surface-400">UnoCSS</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back To Top Button -->
+  <button
+    id="back-to-top"
+    class="fixed bottom-6 right-6 p-3 rounded-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg cursor-pointer transform translate-y-20 opacity-0 transition-all duration-300 z-50 hover:-translate-y-1 hover:scale-110"
+    aria-label="Back to top"
+    title="Back to top"
+  >
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+  </button>
+</footer>
+
+<script>
+  // Set current year dynamically
+  const yearSpan = document.getElementById('current-year');
+  if (yearSpan) {
+    yearSpan.textContent = String(new Date().getFullYear());
+  }
+
+  // Back-to-top scroll logic
+  const backToTop = document.getElementById('back-to-top');
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) {
+      backToTop?.classList.remove('translate-y-20', 'opacity-0');
+    } else {
+      backToTop?.classList.add('translate-y-20', 'opacity-0');
+    }
+  });
+
+  backToTop?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>

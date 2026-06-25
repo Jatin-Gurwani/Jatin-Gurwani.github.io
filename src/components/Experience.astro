@@ -1,0 +1,113 @@
+---
+/**
+ * Experience.astro — Professional experience timeline and education.
+ */
+import { portfolio } from '@config/portfolio';
+import SectionHeading from '@components/SectionHeading.astro';
+
+const { experience, education } = portfolio;
+---
+
+<section id="experience" class="section-padding">
+  <div class="section-container">
+    <SectionHeading title="Work Experience" subtitle="My professional timeline and journey" />
+
+    <!-- Vertical Timeline Container -->
+    <div class="relative max-w-4xl mx-auto mb-20">
+      <!-- Central vertical line -->
+      <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary-500 to-accent-500 transform -translate-x-1/2 z-0"></div>
+
+      <!-- Experience entries -->
+      <div class="space-y-12">
+        {experience.map((job, idx) => {
+          const isEven = idx % 2 === 0;
+          return (
+            <div class={`relative flex flex-col md:flex-row items-stretch z-10 reveal ${isEven ? 'md:flex-row-reverse' : ''}`}>
+              <!-- Timeline Dot -->
+              <div class="absolute left-4 md:left-1/2 w-4 h-4 rounded-full bg-gradient-to-tr from-primary-500 to-accent-500 transform -translate-x-1/2 border-4 border-[var(--color-bg)] z-20 shadow-glow"></div>
+
+              <!-- Content Panel -->
+              <div class="w-full md:w-1/2 pl-10 md:pl-0 md:px-8">
+                <div class="glass-card-hover p-6">
+                  <!-- Duration & Metadata -->
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary-100 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+                      {job.duration}
+                    </span>
+                    <span class="text-xs text-[var(--color-text-muted)] font-mono">
+                      {job.startDate} – {job.endDate}
+                    </span>
+                  </div>
+
+                  <!-- Role & Company -->
+                  <h3 class="heading-md text-[var(--color-text)] mb-1">
+                    {job.role}
+                  </h3>
+                  <div class="text-sm font-semibold text-accent-500 mb-4">
+                    {job.companyUrl ? (
+                      <a href={job.companyUrl} target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1">
+                        {job.company}
+                        <span class="i-carbon-launch w-3.5 h-3.5 inline-block"></span>
+                      </a>
+                    ) : (
+                      job.company
+                    )}
+                  </div>
+
+                  <ul class="body-md mb-4 space-y-2 list-disc list-outside ml-5">
+                    {job.description.map((desc) => (
+                      <li>{desc}</li>
+                    ))}
+                  </ul>
+
+                  <!-- Tech stack badges -->
+                  <div class="flex flex-wrap gap-1.5 mt-auto">
+                    {job.technologies.map((tech) => (
+                      <span class="tag-sm">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Spacer column for desktop symmetry -->
+              <div class="hidden md:block w-1/2"></div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Education Section -->
+    <div class="mt-24 max-w-4xl mx-auto">
+      <h3 class="heading-md text-center text-[var(--color-text)] mb-8">
+        Education
+      </h3>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        {education.map((edu) => (
+          <div class="glass-card-hover p-6 reveal">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-accent-100 dark:bg-accent-950/40 text-accent-600 dark:text-accent-400 inline-block mb-3">
+              {edu.duration}
+            </span>
+            <h4 class="font-bold text-lg text-[var(--color-text)] mb-1">
+              {edu.degree}
+            </h4>
+            <div class="text-sm text-primary-500 font-semibold mb-2">
+              {edu.field}
+            </div>
+            <div class="text-sm font-medium text-[var(--color-text-secondary)] mb-3">
+              {edu.institution}
+            </div>
+            {edu.description && (
+              <p class="body-md text-sm">
+                {edu.description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,150 @@
+---
+/**
+ * Projects.astro — Interactive project showcase with client-side category filtering.
+ */
+import { portfolio } from '@config/portfolio';
+import SectionHeading from '@components/SectionHeading.astro';
+
+const { projects } = portfolio;
+
+// Extract unique tag categories from all projects 'Open Source'
+const filters = [
+  'All',
+  'AI Agents',
+  'GenAI',
+  'RAG',
+  'Backend',
+  'Automation',
+  'Web Apps',
+];
+---
+
+<section id="projects" class="section-padding bg-[var(--color-bg-alt)]">
+  <div class="section-container">
+    <SectionHeading title="Projects" subtitle="Featured projects and experiments in AI" />
+
+    <!-- Interactive Filters -->
+    <div class="flex flex-wrap justify-center gap-2 mb-12 reveal">
+      {filters.map((filter) => (
+        <button
+          class="project-filter-btn px-4 py-2 text-sm font-semibold rounded-full border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-primary-500 hover:text-primary-500 dark:hover:text-primary-400 transition-all duration-200"
+          data-filter={filter}
+        >
+          {filter}
+        </button>
+      ))}
+    </div>
+
+    <!-- Projects Grid -->
+    <div id="projects-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 reveal">
+      {projects.map((project) => (
+        <div
+          class="project-card glass-card-hover overflow-hidden flex flex-col h-full"
+          data-tags={JSON.stringify(project.tags)}
+        >
+          <!-- Project Cover Placeholder Image -->
+          <div class="h-48 w-full bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center relative border-b border-[var(--color-border)]">
+            <span class="text-4xl text-primary-500 dark:text-primary-400 opacity-60">🤖</span>
+            {project.featured && (
+              <span class="absolute top-4 right-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full">
+                Featured
+              </span>
+            )}
+          </div>
+
+          <!-- Info Details -->
+          <div class="p-6 flex flex-col flex-grow">
+            <h3 class="heading-md text-[var(--color-text)] mb-2">
+              {project.title}
+            </h3>
+            <p class="body-md text-sm mb-4 flex-grow">
+              {project.description}
+            </p>
+
+            <!-- Stack tags -->
+            <div class="flex flex-wrap gap-1.5 mb-6">
+              {project.techStack.map((tech) => (
+                <span class="tag-sm">
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex items-center gap-4 mt-auto pt-4 border-t border-[var(--color-border)]">
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors"
+                >
+                  <span class="i-simple-icons-github w-4 h-4"></span>
+                  Code
+                </a>
+              )}
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors ml-auto"
+                >
+                  <span class="i-carbon-launch w-4 h-4"></span>
+                  Live Demo
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Client-side Filtering Logic -->
+<script>
+  const filterBtns = document.querySelectorAll('.project-filter-btn');
+  const projectCards = document.querySelectorAll('.project-card');
+
+  // Activate the 'All' button by default
+  const defaultBtn = document.querySelector('.project-filter-btn[data-filter="All"]');
+  if (defaultBtn) {
+    defaultBtn.classList.add('bg-gradient-to-r', 'from-primary-500', 'to-accent-500', 'text-white', 'border-transparent');
+    defaultBtn.classList.remove('text-[var(--color-text-secondary)]');
+  }
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const selectedFilter = btn.getAttribute('data-filter');
+
+      // Update button classes
+      filterBtns.forEach((b) => {
+        b.classList.remove('bg-gradient-to-r', 'from-primary-500', 'to-accent-500', 'text-white', 'border-transparent');
+        b.classList.add('text-[var(--color-text-secondary)]');
+      });
+      btn.classList.add('bg-gradient-to-r', 'from-primary-500', 'to-accent-500', 'text-white', 'border-transparent');
+      btn.classList.remove('text-[var(--color-text-secondary)]');
+
+      // Filter project cards
+      projectCards.forEach((card) => {
+        if (!(card instanceof HTMLElement)) return;
+        const tags = JSON.parse(card.getAttribute('data-tags') || '[]');
+
+        if (selectedFilter === 'All' || tags.includes(selectedFilter)) {
+          card.style.display = 'flex';
+          setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+          }, 50);
+        } else {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            card.style.display = 'none';
+          }, 300);
+        }
+      });
+    });
+  });
+</script>

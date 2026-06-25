@@ -1,0 +1,41 @@
+---
+/**
+ * Skills.astro — Technology stack categorized in groups.
+ */
+import { portfolio } from '@config/portfolio';
+import SectionHeading from '@components/SectionHeading.astro';
+
+const { skills } = portfolio;
+---
+
+<section id="skills" class="section-padding bg-[var(--color-bg-alt)]">
+  <div class="section-container">
+    <SectionHeading title="Skills & Technologies" subtitle="My comprehensive technical toolkit" />
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {skills.map((category, idx) => (
+        <div 
+          class={`glass-card-hover p-6 reveal`}
+          style={`transition-delay: ${idx * 50}ms`}
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl" role="img" aria-label={category.title}>
+              {category.icon}
+            </span>
+            <h3 class="font-bold text-lg text-[var(--color-text)]">
+              {category.title}
+            </h3>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            {category.skills.map((skill) => (
+              <span class="tag-sm">
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

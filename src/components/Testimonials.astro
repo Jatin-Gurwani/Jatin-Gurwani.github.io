@@ -1,0 +1,51 @@
+---
+/**
+ * Testimonials.astro — Recommendations and quotes from colleagues and clients.
+ */
+import { portfolio } from '@config/portfolio';
+import SectionHeading from '@components/SectionHeading.astro';
+
+const { testimonials } = portfolio;
+---
+
+<section id="testimonials" class="section-padding bg-[var(--color-bg-alt)]">
+  <div class="section-container">
+    <SectionHeading title="Testimonials" subtitle="What industry peers say about my work" />
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {testimonials.map((item, idx) => (
+        <div
+          class="glass-card p-8 flex flex-col justify-between relative reveal"
+          style={`transition-delay: ${idx * 100}ms`}
+        >
+          <!-- Decorative large quotation mark -->
+          <div class="absolute top-6 left-6 text-7xl font-serif text-primary-200 dark:text-primary-900/30 select-none pointer-events-none">
+            “
+          </div>
+
+          <div class="relative z-10">
+            <p class="italic text-[var(--color-text-secondary)] leading-relaxed mb-6">
+              {item.quote}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-4 border-t border-[var(--color-border)] pt-4">
+            <!-- Initials Avatar -->
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-sm">
+              {item.name.split(' ').map((n) => n[0]).join('')}
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm text-[var(--color-text)]">
+                {item.name}
+              </h4>
+              <p class="text-xs text-[var(--color-text-muted)]">
+                {item.role}, <span class="text-accent-500">{item.company}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
