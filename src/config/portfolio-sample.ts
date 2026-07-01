@@ -12,6 +12,10 @@ export interface SocialLinks {
   linkedin: string;
   twitter: string;
   blog: string;
+  instagram?: string;
+  huggingface?: string;
+  kaggle?: string;
+  credly?: string;
 }
 
 export interface Skill {
@@ -162,6 +166,10 @@ When I'm not building AI systems, you'll find me contributing to open-source pro
     linkedin: 'https://linkedin.com/in/jatin-gurwani',
     twitter: '',
     blog: '',
+    instagram: '',
+    huggingface: '',
+    kaggle: '',
+    credly: '',
   },
 
   // ══════════════════════════════════════════════════════════

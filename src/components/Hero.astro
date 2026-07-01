@@ -1,6 +1,7 @@
 ---
 /**
  * Hero.astro — Hero section with dynamic introduction, CTA buttons, and social links.
+ * Background: Animated circuit board traces with travelling data pulses.
  */
 import { portfolio } from '@config/portfolio';
 
@@ -9,14 +10,26 @@ const { name, title, tagline, resumeUrl, profilePhoto } = portfolio;
 
 <section
   id="hero"
-  class="relative min-h-[90vh] flex items-center justify-center section-padding bg-[var(--gradient-hero)] overflow-hidden"
+  class="relative min-h-[90vh] flex items-center justify-center section-padding overflow-hidden"
 >
-  <!-- Decorative background grid -->
-  <div class="absolute inset-0 bg-grid z-0"></div>
+  <!-- ── Circuit Board Canvas ── -->
+  <canvas
+    id="hero-circuit-canvas"
+    class="absolute inset-0 w-full h-full z-0"
+    aria-hidden="true"
+  ></canvas>
 
-  <!-- Decorative blur orbs -->
-  <div class="gradient-orb w-[300px] h-[300px] bg-primary-400 top-20 left-10 z-0"></div>
-  <div class="gradient-orb w-[400px] h-[400px] bg-accent-400 bottom-10 right-10 z-0"></div>
+  <!-- Radial vignette so content stays readable -->
+  <div
+    class="absolute inset-0 z-1 pointer-events-none"
+    style="background: radial-gradient(ellipse 80% 80% at center, transparent 20%, var(--color-bg) 90%);"
+  ></div>
+
+  <!-- Ambient glow blob -->
+  <div
+    class="absolute inset-0 z-1 pointer-events-none"
+    style="background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(var(--color-primary-500-rgb), 0.07) 0%, transparent 70%);"
+  ></div>
 
   <div class="section-container relative z-10 w-full">
     <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -100,6 +113,50 @@ const { name, title, tagline, resumeUrl, profilePhoto } = portfolio;
               <span class="i-carbon-blog w-5 h-5 block"></span>
             </a>
           )}
+          {portfolio.socialLinks.instagram && (
+            <a
+              href={portfolio.socialLinks.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-2.5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface)] transition-all text-[var(--color-text-secondary)] hover:text-primary-500"
+              aria-label="Instagram"
+            >
+              <span class="i-simple-icons-instagram w-5 h-5 block"></span>
+            </a>
+          )}
+          {portfolio.socialLinks.huggingface && (
+            <a
+              href={portfolio.socialLinks.huggingface}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-2.5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface)] transition-all text-[var(--color-text-secondary)] hover:text-primary-500"
+              aria-label="Hugging Face"
+            >
+              <span class="i-simple-icons-huggingface w-5 h-5 block"></span>
+            </a>
+          )}
+          {portfolio.socialLinks.kaggle && (
+            <a
+              href={portfolio.socialLinks.kaggle}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-2.5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface)] transition-all text-[var(--color-text-secondary)] hover:text-primary-500"
+              aria-label="Kaggle"
+            >
+              <span class="i-simple-icons-kaggle w-5 h-5 block"></span>
+            </a>
+          )}
+          {portfolio.socialLinks.credly && (
+            <a
+              href={portfolio.socialLinks.credly}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-2.5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface)] transition-all text-[var(--color-text-secondary)] hover:text-primary-500"
+              aria-label="Credly"
+            >
+              <span class="i-simple-icons-credly w-5 h-5 block"></span>
+            </a>
+          )}
         </div>
       </div>
 
@@ -128,6 +185,8 @@ const { name, title, tagline, resumeUrl, profilePhoto } = portfolio;
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
   <!-- Scroll Down Indicator -->
   <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer z-10 text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
@@ -138,3 +197,292 @@ const { name, title, tagline, resumeUrl, profilePhoto } = portfolio;
     </a>
   </div>
 </section>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  Circuit Board Trace Animation
+//  - Orthogonal traces grow outward from random seed nodes
+//  - Data "pulses" (glowing dots) travel along completed traces
+//  - Mouse proximity makes nearby nodes glow brighter
+// ─────────────────────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('hero-circuit-canvas') as HTMLCanvasElement;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d')!;
+
+  let W = 0, H = 0;
+  let animId: number;
+  let mouse = { x: -9999, y: -9999 };
+
+  // ── Theme helpers ──
+  function isDark() { return document.documentElement.classList.contains('dark'); }
+  function cssRgb(varName: string, fallback: string): string {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    return v || fallback;
+  }
+  function colors() {
+    const dark = isDark();
+    const pri = cssRgb('--color-primary-500-rgb', '99,102,241');
+    const acc = cssRgb('--color-accent-500-rgb',  '139,92,246');
+    return {
+      bg:         dark ? '#020617' : '#f8fafc',
+      trace:      dark ? `rgba(${pri},0.22)` : `rgba(${pri},0.14)`,
+      traceGlow:  dark ? `rgba(${acc},0.55)` : `rgba(${acc},0.40)`,
+      node:       dark ? `rgba(${pri},0.60)` : `rgba(${pri},0.45)`,
+      nodeGlow:   dark ? `rgba(${acc},1.00)` : `rgba(${acc},0.90)`,
+      pulse:      dark ? `rgba(${acc},1.00)` : `rgba(${acc},0.95)`,
+      pulseHalo:  dark ? `rgba(${pri},0.50)` : `rgba(${pri},0.35)`,
+    };
+  }
+
+  // ── Grid ──
+  const STEP = 48; // px between grid points (logical)
+  let cols = 0, rows = 0;
+  // node states: 'off' | 'dim' | 'lit'
+  type NodeState = 'off' | 'dim' | 'lit';
+  let nodes: NodeState[][] = [];
+
+  // ── Traces: a segment from (r1,c1) → (r2,c2), and its draw progress ──
+  interface Trace {
+    r1: number; c1: number;
+    r2: number; c2: number;
+    progress: number; // 0 → 1, drawing animation
+    done: boolean;
+  }
+  let traces: Trace[] = [];
+
+  // ── Pulses: travel along a specific trace ──
+  interface Pulse {
+    traceIdx: number;
+    t: number;       // 0 → 1 along trace
+    speed: number;
+    alive: boolean;
+  }
+  let pulses: Pulse[] = [];
+
+  // ── Init / resize ──
+  function resize() {
+    const rect = (canvas.parentElement || canvas).getBoundingClientRect();
+    canvas.width  = Math.round(rect.width  * devicePixelRatio);
+    canvas.height = Math.round(rect.height * devicePixelRatio);
+    W = canvas.width;
+    H = canvas.height;
+    const s = STEP * devicePixelRatio;
+    cols = Math.floor(W / s) + 2;
+    rows = Math.floor(H / s) + 2;
+    nodes = Array.from({ length: rows }, () => Array(cols).fill('off') as NodeState[]);
+    traces = [];
+    pulses = [];
+    seedTraces();
+  }
+
+  // Convert grid coords to canvas pixels
+  function gx(c: number): number { return c * STEP * devicePixelRatio; }
+  function gy(r: number): number { return r * STEP * devicePixelRatio; }
+
+  // ── Seed initial traces ──
+  function seedTraces() {
+    const targetTraces = Math.round((cols * rows) * 0.28);
+    let attempts = 0;
+    while (traces.length < targetTraces && attempts++ < targetTraces * 8) {
+      const r1 = Math.floor(Math.random() * rows);
+      const c1 = Math.floor(Math.random() * cols);
+      // Random orthogonal direction
+      const dir = Math.floor(Math.random() * 4);
+      const len = 1 + Math.floor(Math.random() * 4); // 1-4 cells
+      let r2 = r1, c2 = c1;
+      if (dir === 0) r2 = r1 - len;
+      if (dir === 1) r2 = r1 + len;
+      if (dir === 2) c2 = c1 - len;
+      if (dir === 3) c2 = c1 + len;
+      if (r2 < 0 || r2 >= rows || c2 < 0 || c2 >= cols) continue;
+      // Avoid duplicate traces
+      const dup = traces.some(t => t.r1 === r1 && t.c1 === c1 && t.r2 === r2 && t.c2 === c2);
+      if (dup) continue;
+      traces.push({ r1, c1, r2, c2, progress: Math.random(), done: false });
+      nodes[r1][c1] = 'dim';
+      nodes[r2][c2] = 'dim';
+    }
+    // Stagger progress so they don't all finish at once
+    traces.forEach(t => { t.progress = Math.random() * 0.6; });
+  }
+
+  // ── Spawn a pulse on a random done trace ──
+  function spawnPulse() {
+    const done = traces.map((t, i) => t.done ? i : -1).filter(i => i >= 0);
+    if (done.length === 0) return;
+    const idx = done[Math.floor(Math.random() * done.length)];
+    pulses.push({ traceIdx: idx, t: 0, speed: 0.004 + Math.random() * 0.006, alive: true });
+  }
+
+  let lastPulseSpawn = 0;
+  let frame = 0;
+
+  // ── Main draw loop ──
+  function draw(ts: number) {
+    ctx.clearRect(0, 0, W, H);
+    const c = colors();
+    const s = STEP * devicePixelRatio;
+
+    // Background
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Spawn pulses every ~1.2s
+    if (ts - lastPulseSpawn > 1200) {
+      for (let i = 0; i < 3; i++) spawnPulse();
+      lastPulseSpawn = ts;
+    }
+
+    // ── Advance & draw traces ──
+    const traceSpeed = 0.012;
+    traces.forEach(tr => {
+      if (!tr.done) {
+        tr.progress = Math.min(1, tr.progress + traceSpeed);
+        if (tr.progress >= 1) {
+          tr.done = true;
+          nodes[tr.r1][tr.c1] = 'lit';
+          nodes[tr.r2][tr.c2] = 'lit';
+        }
+      }
+
+      const x1 = gx(tr.c1), y1 = gy(tr.r1);
+      const x2 = gx(tr.c2), y2 = gy(tr.r2);
+      const cx = x1 + (x2 - x1) * tr.progress;
+      const cy = y1 + (y2 - y1) * tr.progress;
+
+      // Mouse proximity check (midpoint of this trace)
+      const mx = (x1 + x2) / 2;
+      const my = (y1 + y2) / 2;
+      const dist = Math.hypot(mx - mouse.x, my - mouse.y);
+      const prox = Math.max(0, 1 - dist / (s * 5));
+
+      const lineW = (1 + prox * 1.8) * devicePixelRatio;
+
+      // Draw the drawn portion of the trace
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(cx, cy);
+      ctx.strokeStyle = prox > 0.15 ? c.traceGlow : c.trace;
+      ctx.lineWidth = lineW;
+      ctx.lineCap = 'round';
+      ctx.globalAlpha = 0.6 + prox * 0.4;
+      ctx.stroke();
+
+      // Corner marker (45° angled cut aesthetic)
+      if (tr.done) {
+        // Small corner notch at the endpoint node
+        ctx.beginPath();
+        ctx.arc(x2, y2, lineW * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = prox > 0.15 ? c.traceGlow : c.trace;
+        ctx.globalAlpha = 0.5 + prox * 0.5;
+        ctx.fill();
+      }
+    });
+
+    ctx.globalAlpha = 1;
+
+    // ── Draw nodes ──
+    nodes.forEach((row, r) => {
+      row.forEach((state, col) => {
+        if (state === 'off') return;
+        const x = gx(col), y = gy(r);
+        const dist = Math.hypot(x - mouse.x, y - mouse.y);
+        const prox = Math.max(0, 1 - dist / (s * 4));
+
+        const rad = (state === 'lit' ? 2.8 : 1.8) * devicePixelRatio;
+        const glowRad = rad * (3 + prox * 5);
+
+        // Outer halo
+        if (prox > 0.1 || state === 'lit') {
+          const halo = ctx.createRadialGradient(x, y, 0, x, y, glowRad);
+          halo.addColorStop(0, c.pulseHalo);
+          halo.addColorStop(1, 'transparent');
+          ctx.beginPath();
+          ctx.arc(x, y, glowRad, 0, Math.PI * 2);
+          ctx.fillStyle = halo;
+          ctx.globalAlpha = prox * 0.6 + (state === 'lit' ? 0.15 : 0);
+          ctx.fill();
+        }
+
+        // Node dot
+        ctx.beginPath();
+        ctx.arc(x, y, rad, 0, Math.PI * 2);
+        ctx.fillStyle = prox > 0.2 ? c.nodeGlow : c.node;
+        ctx.globalAlpha = 0.5 + prox * 0.5;
+        ctx.fill();
+
+        ctx.globalAlpha = 1;
+      });
+    });
+
+    // ── Draw & advance pulses ──
+    pulses.forEach(pulse => {
+      if (!pulse.alive) return;
+      const tr = traces[pulse.traceIdx];
+      pulse.t += pulse.speed;
+      if (pulse.t >= 1) { pulse.alive = false; return; }
+
+      const x1 = gx(tr.c1), y1 = gy(tr.r1);
+      const x2 = gx(tr.c2), y2 = gy(tr.r2);
+      const px = x1 + (x2 - x1) * pulse.t;
+      const py = y1 + (y2 - y1) * pulse.t;
+
+      // Outer glow
+      const outerR = 7 * devicePixelRatio;
+      const outerGrd = ctx.createRadialGradient(px, py, 0, px, py, outerR);
+      outerGrd.addColorStop(0, c.pulse);
+      outerGrd.addColorStop(0.4, c.pulseHalo);
+      outerGrd.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(px, py, outerR, 0, Math.PI * 2);
+      ctx.fillStyle = outerGrd;
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+
+      // Core bright dot
+      ctx.beginPath();
+      ctx.arc(px, py, 2.5 * devicePixelRatio, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.globalAlpha = 0.95;
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+    });
+
+    // Clean up dead pulses
+    pulses = pulses.filter(p => p.alive);
+
+    frame++;
+    animId = requestAnimationFrame(draw);
+  }
+
+  // ── Mouse tracking (in canvas pixels) ──
+  const heroEl = document.getElementById('hero')!;
+  heroEl.addEventListener('mousemove', (e: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = (e.clientX - rect.left) * devicePixelRatio;
+    mouse.y = (e.clientY - rect.top)  * devicePixelRatio;
+  });
+  heroEl.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+  heroEl.addEventListener('touchmove', (e: TouchEvent) => {
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = (t.clientX - rect.left) * devicePixelRatio;
+    mouse.y = (t.clientY - rect.top)  * devicePixelRatio;
+  }, { passive: true });
+
+  // ── Theme change ──
+  new MutationObserver(() => {}).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  // ── Resize ──
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(animId);
+    resize();
+    requestAnimationFrame(draw);
+  });
+
+  resize();
+  requestAnimationFrame(draw);
+})();
+</script>

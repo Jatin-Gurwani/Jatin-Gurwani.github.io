@@ -2,6 +2,7 @@
 /**
  * index.astro — Main portfolio page.
  * Assembles all section components in order.
+ * Achievements and Testimonials are only rendered when their arrays are non-empty.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
@@ -14,6 +15,10 @@ import Achievements from '@components/Achievements.astro';
 import GitHubStats from '@components/GitHubStats.astro';
 import Testimonials from '@components/Testimonials.astro';
 import Contact from '@components/Contact.astro';
+import { portfolio } from '@config/portfolio';
+
+const showAchievements = portfolio.achievements.length > 0;
+const showTestimonials = portfolio.testimonials.length > 0;
 ---
 
 <BaseLayout>
@@ -37,11 +42,19 @@ import Contact from '@components/Contact.astro';
   <div class="section-divider"></div>
   <GitHubStats />
 
-  <div class="section-divider"></div>
-  <Achievements />
+  {showAchievements && (
+    <>
+      <div class="section-divider"></div>
+      <Achievements />
+    </>
+  )}
 
-  <div class="section-divider"></div>
-  <Testimonials />
+  {showTestimonials && (
+    <>
+      <div class="section-divider"></div>
+      <Testimonials />
+    </>
+  )}
 
   <div class="section-divider"></div>
   <Contact />

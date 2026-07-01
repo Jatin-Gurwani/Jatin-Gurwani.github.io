@@ -1,144 +1,304 @@
 ---
 /**
- * Contact.astro — Contact info details and interactive contact form.
+ * Contact.astro — Modern contact section. No form — real connection channels only.
+ * Features: availability badge, direct email CTA, social channel cards, copy-to-clipboard.
  */
 import { portfolio } from '@config/portfolio';
 import SectionHeading from '@components/SectionHeading.astro';
 
-const { email, phone, location } = portfolio;
+const { email, phone, location, socialLinks } = portfolio;
+
+// Only show channels that have a value configured
+const channels = [
+  socialLinks.linkedin && {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    sublabel: 'Best for professional outreach',
+    href: socialLinks.linkedin,
+    icon: 'i-simple-icons-linkedin',
+    color: 'from-[#0077B5] to-[#005885]',
+    glow: 'rgba(0,119,181,0.3)',
+    cta: 'Connect on LinkedIn',
+    external: true,
+  },
+  socialLinks.github && {
+    id: 'github',
+    label: 'GitHub',
+    sublabel: 'Check out my code & projects',
+    href: socialLinks.github,
+    icon: 'i-simple-icons-github',
+    color: 'dark:from-[#333] dark:to-[#111] from-[#24292e] to-[#1a1e22]',
+    glow: 'rgba(51,51,51,0.4)',
+    cta: 'View GitHub Profile',
+    external: true,
+  },
+  socialLinks.twitter && {
+    id: 'twitter',
+    label: 'X (Twitter)',
+    sublabel: 'Quick DMs & tech discussions',
+    href: socialLinks.twitter,
+    icon: 'i-simple-icons-x',
+    color: 'from-[#111] to-[#000]',
+    glow: 'rgba(255,255,255,0.15)',
+    cta: 'Follow on X',
+    external: true,
+  },
+  socialLinks.blog && {
+    id: 'blog',
+    label: 'Blog',
+    sublabel: 'Read my articles & thoughts',
+    href: socialLinks.blog,
+    icon: 'i-carbon-blog',
+    color: 'from-primary-600 to-primary-800',
+    glow: 'rgba(var(--color-primary-500-rgb),0.35)',
+    cta: 'Read My Blog',
+    external: true,
+  },
+  socialLinks.instagram && {
+    id: 'instagram',
+    label: 'Instagram',
+    sublabel: 'Life updates & stories',
+    href: socialLinks.instagram,
+    icon: 'i-simple-icons-instagram',
+    color: 'from-[#E1306C] via-[#C13584] to-[#833AB4]',
+    glow: 'rgba(225,48,108,0.3)',
+    cta: 'Follow on Instagram',
+    external: true,
+  },
+  socialLinks.huggingface && {
+    id: 'huggingface',
+    label: 'Hugging Face',
+    sublabel: 'Models, datasets & spaces',
+    href: socialLinks.huggingface,
+    icon: 'i-simple-icons-huggingface',
+    color: 'from-[#FFD21E] to-[#FFA000]',
+    glow: 'rgba(255,210,30,0.3)',
+    cta: 'Visit Hugging Face',
+    external: true,
+  },
+  socialLinks.kaggle && {
+    id: 'kaggle',
+    label: 'Kaggle',
+    sublabel: 'Data science & notebooks',
+    href: socialLinks.kaggle,
+    icon: 'i-simple-icons-kaggle',
+    color: 'from-[#20BEFF] to-[#008BFF]',
+    glow: 'rgba(32,190,255,0.3)',
+    cta: 'Visit Kaggle',
+    external: true,
+  },
+  socialLinks.credly && {
+    id: 'credly',
+    label: 'Credly',
+    sublabel: 'Digital badges & verification',
+    href: socialLinks.credly,
+    icon: 'i-simple-icons-credly',
+    color: 'from-[#FF6B00] to-[#E64A19]',
+    glow: 'rgba(255,107,0,0.3)',
+    cta: 'View Badges on Credly',
+    external: true,
+  },
+].filter(Boolean) as NonNullable<typeof channels[number]>[];
 ---
 
 <section id="contact" class="section-padding">
   <div class="section-container">
-    <SectionHeading title="Get In Touch" subtitle="Let's build something amazing together" />
+    <SectionHeading title="Let's Connect" subtitle="Open to opportunities, collaborations & conversations" />
 
-    <div class="grid lg:grid-cols-12 gap-12 items-start reveal">
-      <!-- Info Left -->
-      <div class="lg:col-span-5 space-y-6">
-        <h3 class="heading-md text-[var(--color-text)]">
-          Contact Details
-        </h3>
-        <p class="body-md">
-          Feel free to reach out for project inquiries, collaboration opportunities, or general technical discussions.
-        </p>
+    <!-- ── Availability Badge ── -->
+    <div class="flex justify-center mb-12 reveal">
+      <div class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] backdrop-blur-sm shadow-sm">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        <span class="text-sm font-semibold text-[var(--color-text)]">Available for new opportunities</span>
+        <span class="text-xs text-[var(--color-text-muted)] border-l border-[var(--color-border)] pl-3">{location}</span>
+      </div>
+    </div>
 
-        <div class="space-y-4">
-          <!-- Email -->
-          <div class="glass-card-hover p-4 flex items-center gap-4">
-            <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
-              <span class="i-carbon-email w-6 h-6 block"></span>
+    <!-- ── Hero CTA — Big Email Block ── -->
+    <div class="reveal mb-16">
+      <div class="relative overflow-hidden rounded-3xl p-px bg-gradient-to-br from-primary-500 via-accent-400 to-primary-600 shadow-xl">
+        <div class="rounded-3xl bg-[var(--color-bg)] dark:bg-[#0a0f1e] p-10 sm:p-14 text-center relative overflow-hidden">
+          <!-- Subtle background glow -->
+          <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(var(--color-primary-500-rgb),0.08) 0%, transparent 70%);"></div>
+
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary-500 dark:text-primary-400 mb-4">
+            Preferred contact method
+          </p>
+          <h3 class="text-3xl sm:text-4xl md:text-5xl font-black text-[var(--color-text)] mb-3 leading-tight">
+            Drop me an email
+          </h3>
+          <p class="text-[var(--color-text-secondary)] mb-8 max-w-md mx-auto">
+            I read every email and typically respond within 24 hours. Whether it's a job offer, collaboration, or just a technical chat — I'm all ears.
+          </p>
+
+          <!-- Email display + copy -->
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div
+              id="email-copy-block"
+              class="group flex items-center gap-3 px-6 py-3.5 rounded-2xl border-2 border-[var(--color-border)] hover:border-primary-500 bg-[var(--color-bg-alt)] cursor-pointer transition-all duration-200 select-none"
+              title="Click to copy email address"
+              data-email={email}
+              tabindex="0"
+              role="button"
+              aria-label="Copy email address to clipboard"
+            >
+              <span class="i-carbon-email w-5 h-5 text-primary-500 shrink-0"></span>
+              <span id="email-display-text" class="font-mono font-semibold text-[var(--color-text)] text-sm sm:text-base">{email}</span>
+              <span id="copy-icon" class="i-carbon-copy w-4 h-4 text-[var(--color-text-muted)] group-hover:text-primary-500 transition-colors shrink-0"></span>
             </div>
-            <div>
-              <div class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Email</div>
-              <a href={`mailto:${email}`} class="text-sm font-semibold text-[var(--color-text)] hover:text-primary-500 transition-colors">
-                {email}
-              </a>
-            </div>
+
+            <a
+              href={`mailto:${email}`}
+              class="btn-primary"
+              id="email-mailto-btn"
+            >
+              Open Email App
+              <span class="i-carbon-arrow-up-right w-4 h-4"></span>
+            </a>
           </div>
 
-          <!-- Phone -->
-          <div class="glass-card-hover p-4 flex items-center gap-4">
-            <div class="p-3 rounded-xl bg-accent-100 dark:bg-accent-950/40 text-accent-600 dark:text-accent-400">
-              <span class="i-carbon-phone w-6 h-6 block"></span>
-            </div>
-            <div>
-              <div class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Phone</div>
-              <a href={`tel:${phone}`} class="text-sm font-semibold text-[var(--color-text)] hover:text-accent-500 transition-colors">
-                {phone}
-              </a>
-            </div>
-          </div>
-
-          <!-- Location -->
-          <div class="glass-card-hover p-4 flex items-center gap-4">
-            <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
-              <span class="i-carbon-map w-6 h-6 block"></span>
-            </div>
-            <div>
-              <div class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Location</div>
-              <div class="text-sm font-semibold text-[var(--color-text)]">
-                {location}
-              </div>
-            </div>
-          </div>
+          <!-- Copy feedback -->
+          <p id="copy-feedback" class="mt-3 text-xs text-green-500 font-semibold opacity-0 transition-opacity duration-300">
+            ✓ Copied to clipboard!
+          </p>
         </div>
       </div>
+    </div>
 
-      <!-- Form Right -->
-      <div class="lg:col-span-7">
-        <form
-          action="#"
-          method="POST"
-          class="glass-card p-8 space-y-6"
-          id="contact-form"
-        >
-          <div class="grid sm:grid-cols-2 gap-6">
-            <div>
-              <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-2">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                class="w-full px-4 py-3 bg-[var(--color-bg-alt)] border border-[var(--color-border)] focus:border-primary-500 focus:outline-none rounded-xl text-sm transition-colors"
-                placeholder="John Doe"
-              />
-            </div>
-
-            <div>
-              <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                class="w-full px-4 py-3 bg-[var(--color-bg-alt)] border border-[var(--color-border)] focus:border-primary-500 focus:outline-none rounded-xl text-sm transition-colors"
-                placeholder="john@example.com"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label for="subject" class="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-2">
-              Subject
-            </label>
-            <input
-              type="text"
-              id="subject"
-              name="subject"
-              required
-              class="w-full px-4 py-3 bg-[var(--color-bg-alt)] border border-[var(--color-border)] focus:border-primary-500 focus:outline-none rounded-xl text-sm transition-colors"
-              placeholder="Collaboration Proposal"
-            />
-          </div>
-
-          <div>
-            <label for="message" class="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-2">
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              rows="5"
-              required
-              class="w-full px-4 py-3 bg-[var(--color-bg-alt)] border border-[var(--color-border)] focus:border-primary-500 focus:outline-none rounded-xl text-sm transition-colors resize-none"
-              placeholder="Tell me more about your project..."
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            class="btn-primary w-full justify-center"
+    <!-- ── Social Channel Cards ── -->
+    {channels.length > 0 && (
+      <div class={`grid gap-5 reveal ${channels.length === 1 ? 'max-w-sm mx-auto' : channels.length === 2 ? 'sm:grid-cols-2 max-w-2xl mx-auto' : channels.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'}`}>
+        {channels.map((ch, i) => (
+          <a
+            href={ch.href}
+            target={ch.external ? '_blank' : '_self'}
+            rel="noopener noreferrer"
+            id={`contact-channel-${ch.id}`}
+            class="contact-channel-card group relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-transparent p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            style={`--channel-glow: ${ch.glow};`}
+            aria-label={ch.cta}
           >
-            Send Message
-            <span class="i-carbon-send w-5 h-5"></span>
-          </button>
-        </form>
+            <!-- Gradient fill on hover -->
+            <div class={`absolute inset-0 bg-gradient-to-br ${ch.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl`}></div>
+
+            <!-- Content -->
+            <div class="relative z-10 flex items-start justify-between">
+              <div class="p-3 rounded-xl bg-[var(--color-bg-alt)] group-hover:bg-white/15 transition-colors">
+                <span class={`${ch.icon} w-6 h-6 block text-[var(--color-text-secondary)] group-hover:text-white transition-colors`}></span>
+              </div>
+              <span class="i-carbon-arrow-up-right w-4 h-4 text-[var(--color-text-muted)] group-hover:text-white/70 transition-colors mt-1"></span>
+            </div>
+
+            <div class="relative z-10">
+              <div class="font-bold text-base text-[var(--color-text)] group-hover:text-white transition-colors">{ch.label}</div>
+              <div class="text-xs text-[var(--color-text-muted)] group-hover:text-white/70 transition-colors mt-0.5">{ch.sublabel}</div>
+            </div>
+
+            <div class="relative z-10 mt-auto">
+              <span class="text-xs font-semibold text-primary-500 group-hover:text-white/90 transition-colors flex items-center gap-1">
+                {ch.cta}
+                <span class="i-carbon-arrow-right w-3 h-3 group-hover:translate-x-1 transition-transform inline-block"></span>
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+
+    <!-- ── Quick Info Strip ── -->
+    <div class="mt-12 reveal flex flex-wrap items-center justify-center gap-6 text-sm text-[var(--color-text-muted)]">
+      {phone && (
+        <a href={`tel:${phone}`} class="flex items-center gap-2 hover:text-[var(--color-text)] transition-colors group">
+          <span class="i-carbon-phone w-4 h-4 group-hover:text-primary-500 transition-colors"></span>
+          {phone}
+        </a>
+      )}
+      <span class="hidden sm:block w-px h-4 bg-[var(--color-border)]"></span>
+      <div class="flex items-center gap-2">
+        <span class="i-carbon-map w-4 h-4"></span>
+        {location}
+      </div>
+      <span class="hidden sm:block w-px h-4 bg-[var(--color-border)]"></span>
+      <div class="flex items-center gap-2">
+        <span class="i-carbon-time w-4 h-4"></span>
+        IST (UTC +5:30)
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  // ── Copy email to clipboard ──
+  const block = document.getElementById('email-copy-block');
+  const feedback = document.getElementById('copy-feedback');
+  const copyIcon = document.getElementById('copy-icon');
+
+  function triggerCopy() {
+    const emailVal = block?.getAttribute('data-email') ?? '';
+    if (!emailVal) return;
+    navigator.clipboard.writeText(emailVal).then(() => {
+      if (copyIcon) {
+        copyIcon.classList.remove('i-carbon-copy');
+        copyIcon.classList.add('i-carbon-checkmark', 'text-green-500');
+      }
+      if (feedback) {
+        feedback.style.opacity = '1';
+        setTimeout(() => {
+          feedback.style.opacity = '0';
+          if (copyIcon) {
+            copyIcon.classList.remove('i-carbon-checkmark', 'text-green-500');
+            copyIcon.classList.add('i-carbon-copy');
+            copyIcon.style.color = '';
+          }
+        }, 2200);
+      }
+    }).catch(() => {
+      // Fallback: select text
+      const el = document.createElement('textarea');
+      el.value = emailVal;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    });
+  }
+
+  block?.addEventListener('click', triggerCopy);
+  block?.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+      e.preventDefault();
+      triggerCopy();
+    }
+  });
+
+  // ── Channel card glow effect ──
+  document.querySelectorAll<HTMLElement>('.contact-channel-card').forEach(card => {
+    card.addEventListener('mousemove', (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--x', `${x}px`);
+      card.style.setProperty('--y', `${y}px`);
+    });
+  });
+</script>
+
+<style>
+  .contact-channel-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(200px circle at var(--x, 50%) var(--y, 50%), var(--channel-glow, rgba(99,102,241,0.15)), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .contact-channel-card:hover::before {
+    opacity: 1;
+  }
+</style>

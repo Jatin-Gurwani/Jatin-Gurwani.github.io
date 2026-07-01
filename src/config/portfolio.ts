@@ -12,6 +12,10 @@ export interface SocialLinks {
   linkedin: string;
   twitter: string;
   blog: string;
+  instagram?: string;
+  huggingface?: string;
+  kaggle?: string;
+  credly?: string;
 }
 
 export interface Skill {
@@ -137,8 +141,8 @@ export const portfolio: PortfolioConfig = {
   //  THEME CONFIGURATION
   // ══════════════════════════════════════════════════════════
   theme: {
-    primaryColor: '#fd6739', // Indigo #6366f1 bb3e03
-    accentColor: '#fcab93',  // Violet #8b5cf6 cb997e
+    primaryColor: '#fd6739', // Indigo #6366f1 bb3e03 fd6739
+    accentColor: '#fcab93',  // Violet #8b5cf6 cb997e fcab93
   },
 
   // ══════════════════════════════════════════════════════════
@@ -149,7 +153,7 @@ export const portfolio: PortfolioConfig = {
   title: 'AI Engineer & GenAI Specialist',
   tagline: 'Building intelligent systems that bridge the gap between cutting-edge AI research and real-world applications.',
   profilePhoto: '/profile.jpg',
-  resumeUrl: '/resume.pdf',
+  resumeUrl: 'https://flowcv.com/resume/56qs7daiv919',
   about: `
   I'm a passionate AI & Backend Engineer specializing in Generative AI, Conversational Systems, and Intelligent Automation. With a strong foundation in architecting high-availability IVR workflows and scalable call-routing systems, I design and build backend infrastructures that bridge the gap between human intent and machine intelligence.
 
@@ -171,7 +175,7 @@ export const portfolio: PortfolioConfig = {
   // ══════════════════════════════════════════════════════════
   email: 'gurwanijatin@gmail.com',
   phone: '+91-9320042242',
-  location: 'Ulhasnagar,Maharashtra,India',
+  location: 'Mumbai,Maharashtra,India',
 
   // ══════════════════════════════════════════════════════════
   //  SOCIAL LINKS
@@ -181,6 +185,10 @@ export const portfolio: PortfolioConfig = {
     linkedin: 'https://linkedin.com/in/jatin-gurwani',
     twitter: '',
     blog: '',
+    instagram: '',
+    huggingface: '', //https://huggingface.co/JatinG2401
+    kaggle: 'https://www.kaggle.com/jatingurwani',
+    credly: 'https://www.credly.com/users/jatin-gurwani',
   },
 
   // ══════════════════════════════════════════════════════════
@@ -408,6 +416,13 @@ export const portfolio: PortfolioConfig = {
       date: 'July 2025',
       credentialUrl: 'https://certificates.upgrad.com/730052d6-1bbd-4360-9e0e-065e409f2d2d-Gen-AI-qkCKHnYdtxbF73Mw.jpeg',
       badgeIcon: '📜',
+    },
+    {
+      name:'Developing Generative AI Applications Using Python',
+      issuer:'IBM',
+      date: 'June 2026',
+      credentialUrl: 'https://courses.gfg.skillsnetwork.site/certificates/de37dc3ae40d446890ba1cebee03195b',
+      badgeIcon : '📜',
     },
   ],
 
